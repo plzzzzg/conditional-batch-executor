@@ -2,6 +2,7 @@ package conditiaonalbatchworker
 
 import (
 	"fmt"
+	"math/rand"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -99,9 +100,6 @@ func TestSize(t *testing.T) {
 func TestClose(t *testing.T) {
 	size := 100
 	w := New(func(items []*Item) (map[string]interface{}, error) {
-		if len(items) != size {
-			t.Fail()
-		}
 		m := map[string]interface{}{}
 		for _, i := range items {
 			m[i.Key] = i.Content
@@ -115,17 +113,23 @@ func TestClose(t *testing.T) {
 	for i := 0; i < size; i++ {
 		go func(i int) {
 			defer wg.Done()
+			time.Sleep(time.Millisecond * time.Duration(rand.Int31n(50)*int32(i)))
 			resultCh, err := w.Submit(fmt.Sprintf("%d", i), i)
-			if err == nil {
+			if err != nil {
+				//t.Log(i, err.Error(), cnt.Load())
 				return
 			}
 			<-resultCh
 			cnt.Add(1)
 		}(i)
 	}
-
+	go func() {
+		time.Sleep(time.Second)
+		w.Close()
+	}()
 	wg.Wait()
 	if cnt.Load() == int32(size) {
+		//t.Log(cnt.Load())
 		t.Fail()
 	}
 }

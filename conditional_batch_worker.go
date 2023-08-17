@@ -102,7 +102,9 @@ func (w *Worker) exec() {
 				break
 			}
 			time.Sleep(time.Millisecond * 10)
-			continue
+			if !w.isClose {
+				continue
+			}
 		}
 		results, err := w.doFnc(w.readyTaskList)
 		for itemID, result := range results {
