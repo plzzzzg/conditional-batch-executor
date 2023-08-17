@@ -1,5 +1,10 @@
 # Conditional Batch Worker
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/plzzzzg/conditional-batch-worker#section-readme.svg)](https://pkg.go.dev/github.com/plzzzzg/conditional-batch-worker#section-readme)
+[![Go Report Card](https://goreportcard.com/badge/github.com/plzzzzg/conditional-batch-worker)](https://goreportcard.com/report/github.com/plzzzzg/conditional-batch-worker)
+[![Go](https://github.com/plzzzzg/conditional-batch-worker/actions/workflows/go.yml/badge.svg)](https://github.com/plzzzzg/conditional-batch-worker/actions/workflows/go.yml)
+[![codecov](https://codecov.io/gh/plzzzzg/conditional-batch-worker/graph/badge.svg?token=KONGT3A0I8)](https://codecov.io/gh/plzzzzg/conditional-batch-worker)
+
 A batch worker that collects tasks and executes them when conditions are met.
 
 Caller can get the results asynchronously.
