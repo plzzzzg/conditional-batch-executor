@@ -1,3 +1,3 @@
-module github.com/plzzzzg/condition-batch-worker
+module github.com/plzzzzg/conditional-batch-worker
 
 go 1.18
