@@ -1,4 +1,4 @@
-package conditiaonalbatchworker
+package conditiaonalbatchexecutor
 
 import (
 	"errors"
@@ -6,9 +6,9 @@ import (
 	"time"
 )
 
-type Condition func(worker *Worker) bool
+type Condition func(executor *Executor) bool
 
-type Worker struct {
+type Executor struct {
 	queue           chan *Item
 	readyTaskList   []*Item
 	doFnc           func([]*Item) (map[string]interface{}, error)
@@ -24,8 +24,8 @@ type Item struct {
 	Content interface{}
 }
 
-func New(doFnc func([]*Item) (map[string]interface{}, error), conditions ...Condition) *Worker {
-	worker := &Worker{doFnc: doFnc, conditions: conditions}
+func New(doFnc func([]*Item) (map[string]interface{}, error), conditions ...Condition) *Executor {
+	worker := &Executor{doFnc: doFnc, conditions: conditions}
 	worker.lastExecuteTime = time.Now()
 	worker.queue = make(chan *Item, 1000)
 	worker.results = sync.Map{}
@@ -35,7 +35,7 @@ func New(doFnc func([]*Item) (map[string]interface{}, error), conditions ...Cond
 	return worker
 }
 
-func (w *Worker) Submit(taskID string, item interface{}) (<-chan interface{}, error) {
+func (w *Executor) Submit(taskID string, item interface{}) (<-chan interface{}, error) {
 	if w.isClose {
 		return nil, errors.New("worker is closed")
 	}
@@ -50,24 +50,24 @@ func (w *Worker) Submit(taskID string, item interface{}) (<-chan interface{}, er
 	return ch, nil
 }
 
-func (w *Worker) Size() int {
+func (w *Executor) Size() int {
 	return len(w.readyTaskList)
 }
 
 func Size(i int) Condition {
-	return func(worker *Worker) bool {
+	return func(worker *Executor) bool {
 		return worker.Size() >= i
 	}
 }
 
 func Interval(duration time.Duration) Condition {
-	return func(worker *Worker) bool {
+	return func(worker *Executor) bool {
 		return worker.lastExecuteTime.IsZero() || worker.lastExecuteTime.Add(duration).Before(time.Now())
 	}
 }
 
 func And(first Condition, others ...Condition) Condition {
-	return func(worker *Worker) bool {
+	return func(worker *Executor) bool {
 		if !first(worker) {
 			return false
 		}
@@ -80,7 +80,7 @@ func And(first Condition, others ...Condition) Condition {
 	}
 }
 
-func (w *Worker) exec() {
+func (w *Executor) exec() {
 	for {
 		select {
 		case task := <-w.queue:
@@ -124,7 +124,7 @@ func (w *Worker) exec() {
 	}
 }
 
-func (w *Worker) Close() {
+func (w *Executor) Close() {
 	w.isClose = true
 	<-w.waitCloseSign
 }
