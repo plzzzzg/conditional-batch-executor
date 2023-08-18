@@ -12,7 +12,7 @@ Caller can get the results asynchronously.
 ## Install
 
 ```shell
-go install github.com/plzzzzg/conditional-batch-worker
+go get github.com/plzzzzg/conditional-batch-worker
 ```
 
 ## Examples
